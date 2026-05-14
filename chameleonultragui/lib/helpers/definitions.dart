@@ -88,6 +88,9 @@ enum ChameleonCommand {
   writeVikingToT5577(3005),
   scanIoProxTag(3010),
   writeIoProxToT5577(3011),
+  paradoxScan(3017),
+  paradoxWriteToT55xx(3018),
+  paradoxEncodeFcCn(3019),
   lfSniff(3031),
 
   mf1LoadBlockData(4000),
@@ -145,7 +148,9 @@ enum ChameleonCommand {
   getVikingEmulatorID(5005),
 
   setIoProxEmulatorID(5008),
-  getIoProxEmulatorID(5009);
+  getIoProxEmulatorID(5009),
+  setParadoxEmulatorID(5010),
+  getParadoxEmulatorID(5011);
 
   const ChameleonCommand(this.value);
   final int value;
@@ -161,6 +166,7 @@ enum TagType {
   viking(170),
   hidProx(200),
   ioProx(201),
+  paradox(202),
   mifareMini(1000),
   mifare1K(1001),
   mifare2K(1002),
@@ -600,6 +606,21 @@ class IoProxCard extends LFCard {
 
   IoProxCard({
     super.type = TagType.ioProx,
+    required super.uid,
+  });
+}
+
+class ParadoxCard extends LFCard {
+  factory ParadoxCard.fromBytes(Uint8List bytes) {
+    return ParadoxCard(uid: bytes);
+  }
+
+  factory ParadoxCard.fromUID(String uid) {
+    return ParadoxCard.fromBytes(hexToBytes(uid));
+  }
+
+  ParadoxCard({
+    super.type = TagType.paradox,
     required super.uid,
   });
 }
