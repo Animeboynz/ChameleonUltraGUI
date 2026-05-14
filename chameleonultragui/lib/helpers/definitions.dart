@@ -114,6 +114,9 @@ enum ChameleonCommand {
   ioProxComposeID(3013),
   adcGenericRead(3009),
   writeT55XX(3016),
+  paradoxScan(3021),
+  paradoxWriteToT55xx(3022),
+  paradoxEncodeFcCn(3023),
   scanEM4X05Tag(3030),
   lfSniff(3031),
 
@@ -182,7 +185,10 @@ enum ChameleonCommand {
   getIoProxEmulatorID(5009),
 
   setIdteckEmulatorID(5012),
-  getIdteckEmulatorID(5013);
+  getIdteckEmulatorID(5013),
+
+  setParadoxEmulatorID(5014),
+  getParadoxEmulatorID(5015);
 
   const ChameleonCommand(this.value);
   final int value;
@@ -199,6 +205,7 @@ enum TagType {
   viking(170),
   hidProx(200),
   ioProx(201),
+  paradox(202),
   idteck(310),
   mifareMini(1000),
   mifare1K(1001),
@@ -679,6 +686,21 @@ class IdteckCard extends LFCard {
 
   IdteckCard({
     super.type = TagType.idteck,
+    required super.uid,
+  });
+}
+
+class ParadoxCard extends LFCard {
+  factory ParadoxCard.fromBytes(Uint8List bytes) {
+    return ParadoxCard(uid: bytes);
+  }
+
+  factory ParadoxCard.fromUID(String uid) {
+    return ParadoxCard.fromBytes(hexToBytes(uid));
+  }
+
+  ParadoxCard({
+    super.type = TagType.paradox,
     required super.uid,
   });
 }

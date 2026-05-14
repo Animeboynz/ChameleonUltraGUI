@@ -54,7 +54,7 @@ class HomePageState extends State<HomePage> {
     // If not, prompt user to update firmware (as outdated firmware might break app)
 
     int ultraCapability = ChameleonCommand.mf0UlcAuth.value;
-    int liteCapability = ChameleonCommand.setIdteckEmulatorID.value;
+    int liteCapability = ChameleonCommand.setParadoxEmulatorID.value;
 
     var appState = context.read<ChameleonGUIState>();
     List<int> capabilities;

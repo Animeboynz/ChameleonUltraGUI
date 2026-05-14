@@ -591,6 +591,29 @@ class ChameleonCommunicator {
     return IoProxCard.fromBytes(resp.data);
   }
 
+  Future<ParadoxCard?> readParadox() async {
+    var resp = await sendCmd(ChameleonCommand.paradoxScan);
+
+    if (resp!.data.length < 12) {
+      return null;
+    }
+
+    return ParadoxCard.fromBytes(
+        Uint8List.fromList(resp.data.sublist(0, 12)));
+  }
+
+  Future<Uint8List> paradoxEncodeFcCn(int fc, int cn) async {
+    final payload = ByteData(6);
+    payload.setUint16(0, fc & 0xFFFF, Endian.big);
+    payload.setUint32(2, cn & 0xFFFFFFFF, Endian.big);
+    var resp = await sendCmd(ChameleonCommand.paradoxEncodeFcCn,
+        data: payload.buffer.asUint8List());
+    if (resp!.data.length < 12) {
+      throw ('Paradox encode failed');
+    }
+    return Uint8List.fromList(resp.data.sublist(0, 12));
+  }
+
   Future<void> setEM410XEmulatorID(Uint8List uid) async {
     await sendCmd(ChameleonCommand.setEM410XemulatorID, data: uid);
   }
@@ -613,6 +636,10 @@ class ChameleonCommunicator {
 
   Future<void> setIdteckEmulatorID(Uint8List uid) async {
     await sendCmd(ChameleonCommand.setIdteckEmulatorID, data: uid);
+  }
+
+  Future<void> setParadoxEmulatorID(Uint8List raw12) async {
+    await sendCmd(ChameleonCommand.setParadoxEmulatorID, data: raw12);
   }
 
   Future<void> writeEM410XtoT55XX(
@@ -689,6 +716,20 @@ class ChameleonCommunicator {
 
     await sendCmd(ChameleonCommand.writeIoProxToT5577,
         data: Uint8List.fromList([...uid, ...newKey, ...keys]));
+  }
+
+  Future<void> writeParadoxToT55XX(
+      Uint8List raw12, Uint8List newKey, List<Uint8List> oldKeys) async {
+    List<int> keys = [];
+
+    keys.addAll(newKey);
+
+    for (var oldKey in oldKeys) {
+      keys.addAll(oldKey);
+    }
+
+    await sendCmd(ChameleonCommand.paradoxWriteToT55xx,
+        data: Uint8List.fromList([...raw12, ...newKey, ...keys]));
   }
 
   Future<Uint8List> lfSniff({int timeoutMs = 2000}) async {
@@ -1100,6 +1141,11 @@ class ChameleonCommunicator {
   Future<IdteckCard> getIdteckEmulatorID() async {
     return IdteckCard.fromBytes(
         (await sendCmd(ChameleonCommand.getIdteckEmulatorID))!.data);
+  }
+
+  Future<ParadoxCard> getParadoxEmulatorID() async {
+    return ParadoxCard.fromBytes(
+        (await sendCmd(ChameleonCommand.getParadoxEmulatorID))!.data);
   }
 
   Future<DeviceSettings> getDeviceSettings() async {
