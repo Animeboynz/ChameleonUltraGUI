@@ -592,14 +592,13 @@ class ChameleonCommunicator {
   }
 
   Future<ParadoxCard?> readParadox() async {
-    var resp = await sendCmd(ChameleonCommand.paradoxScan);
+    var resp = await sendCmd(ChameleonCommand.scanParadoxTag);
 
-    if (resp!.data.length < 12) {
+    if (resp!.data.isEmpty) {
       return null;
     }
 
-    return ParadoxCard.fromBytes(
-        Uint8List.fromList(resp.data.sublist(0, 12)));
+    return ParadoxCard.fromBytes(resp.data);
   }
 
   Future<Uint8List> paradoxEncodeFcCn(int fc, int cn) async {
@@ -728,7 +727,7 @@ class ChameleonCommunicator {
       keys.addAll(oldKey);
     }
 
-    await sendCmd(ChameleonCommand.paradoxWriteToT55xx,
+    await sendCmd(ChameleonCommand.writeParadoxToT5577,
         data: Uint8List.fromList([...raw12, ...newKey, ...keys]));
   }
 
